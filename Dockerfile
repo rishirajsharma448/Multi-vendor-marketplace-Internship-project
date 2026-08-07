@@ -1,7 +1,4 @@
-FROM php:8.2-apache
-
-# Enable Apache rewrite module
-RUN a2enmod rewrite
+FROM php:8.2-cli
 
 # Install PDO MySQL extension
 RUN docker-php-ext-install pdo pdo_mysql
@@ -14,11 +11,10 @@ COPY . /var/www/html/
 
 # Ensure uploads directory exists and set permissions
 RUN mkdir -p /var/www/html/uploads && \
-    chown -R www-data:www-data /var/www/html && \
-    chmod -R 755 /var/www/html/uploads && \
-    chmod +x /var/www/html/start.sh
+    chmod -R 777 /var/www/html/uploads
 
-# Expose port
-EXPOSE 80
+# Expose default port
+EXPOSE 8080
 
-CMD ["/var/www/html/start.sh"]
+# Run lightweight PHP web server bound to dynamic Railway $PORT
+CMD php -S 0.0.0.0:${PORT:-8080}
