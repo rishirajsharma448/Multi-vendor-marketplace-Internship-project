@@ -17,7 +17,7 @@ $stmt->execute([$orderId, $user['id']]);
 $order = $stmt->fetch();
 
 if (!$order) {
-    header("Location: shop.php");
+    header("Location: " . APP_URL . "/shop.php");
     exit;
 }
 
@@ -196,7 +196,7 @@ $deliveryDate = date('D, M d, Y', strtotime('+4 days'));
             <?php $img = !empty($item['image_url']) ? $item['image_url'] : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150&q=80'; ?>
             <div class="d-flex align-items-center justify-content-between py-3 border-bottom">
               <div class="d-flex align-items-center gap-3">
-                <img src="<?= sanitize($img) ?>" class="rounded-3 border" width="64" height="64" style="object-fit: cover;">
+                <img src="<?= sanitize($img) ?>" class="rounded-3 border" width="64" height="64" style="object-fit: contain; background: #f8fafc;">
                 <div>
                   <h6 class="fw-bold mb-1 text-dark"><?= sanitize($item['product_title']) ?></h6>
                   <small class="text-success fw-bold"><i class="bi bi-shop me-1"></i><?= sanitize($item['store_name'] ?? 'Vendor Merchant') ?></small>
@@ -227,9 +227,24 @@ $deliveryDate = date('D, M d, Y', strtotime('+4 days'));
                 <span>Payment Method:</span>
                 <strong class="text-dark"><?= sanitize($order['payment_method']) ?></strong>
               </div>
-              <div class="d-flex justify-content-between small text-muted mb-1">
+              <div class="d-flex justify-content-between small text-muted mb-2">
                 <span>Payment Status:</span>
                 <span class="badge bg-warning-subtle text-warning-emphasis border border-warning">Processing</span>
+              </div>
+              <hr class="my-2">
+              <div class="d-flex justify-content-between small text-muted mb-1">
+                <span>Subtotal:</span>
+                <span class="text-dark fw-bold"><?= formatCurrency($order['subtotal']) ?></span>
+              </div>
+              <?php if ($order['discount'] > 0): ?>
+                <div class="d-flex justify-content-between small text-muted mb-1">
+                  <span>Discount:</span>
+                  <span class="text-success fw-bold">-<?= formatCurrency($order['discount']) ?></span>
+                </div>
+              <?php endif; ?>
+              <div class="d-flex justify-content-between small text-muted mb-1">
+                <span>Shipping Fee:</span>
+                <span class="text-dark fw-bold"><?= formatCurrency($order['shipping_fee']) ?></span>
               </div>
               <hr class="my-2">
               <div class="d-flex justify-content-between fw-bold text-dark">

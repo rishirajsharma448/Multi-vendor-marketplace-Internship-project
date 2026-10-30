@@ -117,7 +117,34 @@ function initMySQLSchema($pdo) {
             $pdo->exec("ALTER TABLE `users` ADD COLUMN `email_verified` TINYINT(1) DEFAULT 0");
         }
 
-        // 2. Ensure vendors table
+        // 2. Ensure customers table (Clean Separation of Customer Details)
+        $pdo->exec("CREATE TABLE IF NOT EXISTS `customers` (
+          `id` INT AUTO_INCREMENT PRIMARY KEY,
+          `user_id` INT NOT NULL UNIQUE,
+          `customer_code` VARCHAR(20) NOT NULL UNIQUE,
+          `full_name` VARCHAR(100) NOT NULL,
+          `email` VARCHAR(100) NOT NULL,
+          `phone` VARCHAR(20) DEFAULT NULL,
+          `shipping_address` TEXT DEFAULT NULL,
+          `city` VARCHAR(60) DEFAULT NULL,
+          `state` VARCHAR(60) DEFAULT NULL,
+          `pincode` VARCHAR(10) DEFAULT NULL,
+          `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+          `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4");
+
+        try {
+            $custBackfill = $pdo->query("SELECT u.id, u.name, u.email, u.phone FROM users u LEFT JOIN customers c ON u.id = c.user_id WHERE u.role = 'customer' AND c.id IS NULL")->fetchAll();
+            $insCust = $pdo->prepare("INSERT INTO customers (user_id, customer_code, full_name, email, phone, shipping_address, city, state, pincode) VALUES (?, ?, ?, ?, ?, 'Flat 402, G.V. Acharya Campus Road, Shelu', 'Shelu / Karjat', 'Maharashtra', '410101')");
+            foreach ($custBackfill as $cb) {
+                $cCode = 'CUST-' . rand(10000, 99999);
+                $insCust->execute([$cb['id'], $cCode, $cb['name'], $cb['email'], $cb['phone']]);
+            }
+        } catch (Exception $e) {
+            // Ignore if already backfilled
+        }
+
+        // 3. Ensure vendors table
         $pdo->exec("CREATE TABLE IF NOT EXISTS `vendors` (
           `id` INT AUTO_INCREMENT PRIMARY KEY,
           `user_id` INT DEFAULT NULL UNIQUE,
@@ -350,18 +377,15 @@ function initMySQLSchema($pdo) {
         if ($uCount == 0) {
             $pass = password_hash('password123', PASSWORD_BCRYPT);
             $pdo->exec("INSERT INTO `users` (`id`, `name`, `email`, `phone`, `password_hash`, `role`, `status`, `email_verified`) VALUES
-                (1, 'System Administrator', 'admin@vyaparsetu.com', '+91 99000 11223', '$pass', 'admin', 'ACTIVE', 1),
-                (2, 'Rahul Verma (TechCraft)', 'vendor@vyaparsetu.com', '+91 98765 11111', '$pass', 'vendor', 'ACTIVE', 1),
                 (3, 'Priya Sharma (Handloom)', 'priya@bharattextiles.in', '+91 98765 22222', '$pass', 'vendor', 'ACTIVE', 1),
                 (4, 'Amrit Patel (Organic)', 'amrit@swadeshispices.org', '+91 98765 33333', '$pass', 'vendor', 'ACTIVE', 1),
-                (5, 'Rishiraj Sharma', 'customer@vyaparsetu.com', '+91 98765 43210', '$pass', 'customer', 'ACTIVE', 1)");
+                (5, 'Ananya Sen', 'ananya@gmail.com', '+91 91234 56789', '$pass', 'customer', 'ACTIVE', 1)");
         }
 
         // Seed vendors if empty
         $vCount = $pdo->query("SELECT COUNT(*) AS cnt FROM vendors")->fetch()['cnt'] ?? 0;
         if ($vCount == 0) {
             $pdo->exec("INSERT INTO `vendors` (`id`, `user_id`, `vendor_code`, `store_name`, `owner_name`, `email`, `phone`, `gstin`, `category`, `rating`, `reviews_count`, `status`, `commission_rate`, `address`) VALUES
-                (1, 2, 'VND-88219', 'TechCraft Electronics', 'Rahul Verma', 'vendor@vyaparsetu.com', '+91 98765 11111', '27AABCT1234H1Z5', 'Electronics', 4.90, 1240, 'APPROVED', '10%', 'Building 4, Tech Park, Mumbai'),
                 (2, 3, 'VND-44102', 'Bharat Handloom Textiles', 'Priya Sharma', 'priya@bharattextiles.in', '+91 98765 22222', '27AABCB5678K1Z2', 'Fashion', 4.80, 850, 'APPROVED', '10%', 'Heritage Weaver Lane, Varanasi'),
                 (3, 4, 'VND-99301', 'Swadeshi Organic Spices', 'Amrit Patel', 'amrit@swadeshispices.org', '+91 98765 33333', '27AABCS9912M1Z9', 'Spices & Organics', 4.90, 2410, 'APPROVED', '10%', 'Spices Hub, Kochi, Kerala')");
         }
@@ -377,33 +401,13 @@ function initMySQLSchema($pdo) {
                 (5, 'Beauty & Wellness', 'beauty-wellness', 'bi-heart-pulse', 'Natural Skincare & Herbal Products')");
         }
 
-        // Seed products if empty
-        $pCount = $pdo->query("SELECT COUNT(*) AS cnt FROM products")->fetch()['cnt'] ?? 0;
-        if ($pCount == 0) {
-            $pdo->exec("INSERT INTO `products` (`id`, `sku`, `vendor_id`, `category_id`, `title`, `description`, `price`, `original_price`, `discount`, `stock`, `spotlight`, `status`, `rating`, `rating_count`) VALUES
-                (1, 'TC-WLE-01', 1, 1, 'SonicPods Pro Active Noise Cancelling Earbuds', 'Ultra-low latency wireless earbuds featuring Hybrid Active Noise Cancellation (ANC), 30-hour playback with fast charge case.', 2499.00, 4999.00, 50, 42, 'BESTSELLER', 'ACTIVE', 4.80, 312),
-                (2, 'TC-SMW-04', 1, 1, 'SmartFit OLED Fitness & SpO2 Smartwatch', 'Sleek aluminum smartwatch with 1.43-inch Always-On AMOLED Display, continuous Heart Rate & SpO2 tracker.', 3999.00, 6999.00, 43, 15, 'FEATURED', 'ACTIVE', 4.90, 184),
-                (3, 'BT-SLK-09', 2, 2, 'Handcrafted Pure Mulberry Silk Banarasi Saree', 'Woven by master artisans in Varanasi, this pure silk saree features gold zari brocade work.', 6800.00, 9500.00, 28, 8, 'FEATURED', 'ACTIVE', 4.90, 96),
-                (4, 'SS-PEP-02', 3, 3, 'Organic Malabar Black Pepper Whole (500g)', 'Directly sourced from organic certified farms in Western Ghats, Kerala.', 650.00, 850.00, 24, 60, 'BESTSELLER', 'ACTIVE', 5.00, 540)");
 
-            $pdo->exec("INSERT INTO `product_images` (`product_id`, `image_url`, `is_primary`) VALUES
-                (1, 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=600&q=80', 1),
-                (2, 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=600&q=80', 1),
-                (3, 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80', 1),
-                (4, 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=600&q=80', 1)");
-        }
 
-        // Seed orders if empty
-        $oCount = $pdo->query("SELECT COUNT(*) AS cnt FROM orders")->fetch()['cnt'] ?? 0;
-        if ($oCount == 0) {
-            $pdo->exec("INSERT INTO `orders` (`id`, `order_number`, `user_id`, `customer_name`, `email`, `phone`, `address`, `payment_method`, `payment_status`, `subtotal`, `discount`, `total_amount`, `status`) VALUES
-                (1, 'ORD-99012', 5, 'Rishiraj Sharma', 'customer@vyaparsetu.com', '+91 98765 43210', 'Flat 402, G.V. Acharya Campus Road, Shelu, Maharashtra - 410101', 'UPI / Razorpay', 'Paid', 2499.00, 250.00, 2249.00, 'Shipped'),
-                (2, 'ORD-99013', 5, 'Ananya Sen', 'ananya@gmail.com', '+91 91234 56789', 'Suite 12, Tech Park Avenue, Pune, Maharashtra', 'Cash on Delivery', 'Pending', 1300.00, 0.00, 1300.00, 'Delivered')");
-
-            $pdo->exec("INSERT INTO `order_items` (`order_id`, `product_id`, `vendor_id`, `product_title`, `price`, `quantity`, `status`) VALUES
-                (1, 1, 1, 'SonicPods Pro Active Noise Cancelling Earbuds', 2499.00, 1, 'Shipped'),
-                (2, 4, 3, 'Organic Malabar Black Pepper Whole (500g)', 650.00, 2, 'Delivered')");
-        }
+        // Auto-heal / sync missing product descriptions or category fixes
+        try {
+            $pdo->exec("UPDATE products SET category_id = 1 WHERE id = 13 AND category_id != 1");
+            $pdo->exec("UPDATE products SET title = 'Beige jacket & Blue baggy jeans combo' WHERE id = 9");
+        } catch (Exception $e) {}
 
     } catch (Exception $e) {
         // Migration error log ignored
@@ -426,7 +430,23 @@ function initSQLiteSchema($pdo) {
         updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
     )");
 
-    // 2. Vendors
+    // 2. Customers (Dedicated Customer Details)
+    $pdo->exec("CREATE TABLE IF NOT EXISTS customers (
+        id INTEGER PRIMARY KEY AUTOINCREMENT,
+        user_id INTEGER NOT NULL UNIQUE,
+        customer_code TEXT NOT NULL UNIQUE,
+        full_name TEXT NOT NULL,
+        email TEXT NOT NULL,
+        phone TEXT DEFAULT NULL,
+        shipping_address TEXT DEFAULT NULL,
+        city TEXT DEFAULT NULL,
+        state TEXT DEFAULT NULL,
+        pincode TEXT DEFAULT NULL,
+        created_at DATETIME DEFAULT CURRENT_TIMESTAMP,
+        updated_at DATETIME DEFAULT CURRENT_TIMESTAMP
+    )");
+
+    // 3. Vendors
     $pdo->exec("CREATE TABLE IF NOT EXISTS vendors (
         id INTEGER PRIMARY KEY AUTOINCREMENT,
         user_id INTEGER NOT NULL UNIQUE,
@@ -608,14 +628,13 @@ function initSQLiteSchema($pdo) {
     if ($checkUser['cnt'] == 0) {
         $passHash = password_hash('password123', PASSWORD_BCRYPT);
         $pdo->exec("INSERT INTO users (id, name, email, phone, password_hash, role, status, email_verified) VALUES
-            (1, 'System Administrator', 'admin@vyaparsetu.com', '+91 99000 11223', '$passHash', 'admin', 'ACTIVE', 1),
-            (2, 'Rahul Verma (TechCraft)', 'vendor@vyaparsetu.com', '+91 98765 11111', '$passHash', 'vendor', 'ACTIVE', 1),
             (3, 'Priya Sharma (Handloom)', 'priya@bharattextiles.in', '+91 98765 22222', '$passHash', 'vendor', 'ACTIVE', 1),
-            (4, 'Rishiraj Sharma', 'customer@vyaparsetu.com', '+91 98765 43210', '$passHash', 'customer', 'ACTIVE', 1)");
+            (4, 'Amrit Patel (Organic)', 'amrit@swadeshispices.org', '+91 98765 33333', '$passHash', 'vendor', 'ACTIVE', 1),
+            (5, 'Ananya Sen', 'ananya@gmail.com', '+91 91234 56789', '$passHash', 'customer', 'ACTIVE', 1)");
         
         $pdo->exec("INSERT INTO vendors (id, user_id, vendor_code, store_name, owner_name, email, phone, gstin, category, rating, reviews_count, status, commission_rate, address) VALUES
-            (1, 2, 'VND-88219', 'TechCraft Electronics', 'Rahul Verma', 'vendor@vyaparsetu.com', '+91 98765 11111', '27AABCT1234H1Z5', 'Electronics', 4.90, 1240, 'APPROVED', '10%', 'Building 4, Mumbai'),
-            (2, 3, 'VND-44102', 'Bharat Handloom Textiles', 'Priya Sharma', 'priya@bharattextiles.in', '+91 98765 22222', '27AABCB5678K1Z2', 'Fashion', 4.80, 850, 'APPROVED', '10%', 'Heritage Weaver Lane, Varanasi')");
+            (2, 3, 'VND-44102', 'Bharat Handloom Textiles', 'Priya Sharma', 'priya@bharattextiles.in', '+91 98765 22222', '27AABCB5678K1Z2', 'Fashion', 4.80, 850, 'APPROVED', '10%', 'Heritage Weaver Lane, Varanasi'),
+            (3, 4, 'VND-99301', 'Swadeshi Organic Spices', 'Amrit Patel', 'amrit@swadeshispices.org', '+91 98765 33333', '27AABCS9912M1Z9', 'Spices & Organics', 4.90, 2410, 'APPROVED', '10%', 'Spices Hub, Kochi, Kerala')");
             
         $pdo->exec("INSERT INTO categories (id, name, slug, icon, description) VALUES
             (1, 'Electronics', 'electronics', 'bi-laptop', 'Gadgets, Smart Devices & Accessories'),
@@ -624,28 +643,10 @@ function initSQLiteSchema($pdo) {
             (4, 'Home & Living', 'home-living', 'bi-house-door', 'Handicrafts, Décor & Kitchenware'),
             (5, 'Beauty & Wellness', 'beauty-wellness', 'bi-heart-pulse', 'Natural Skincare & Herbal Products')");
 
-        $pdo->exec("INSERT INTO products (id, sku, vendor_id, category_id, title, description, price, original_price, discount, stock, spotlight, status, rating, rating_count) VALUES
-            (1, 'TC-WLE-01', 1, 1, 'SonicPods Pro Active Noise Cancelling Earbuds', 'Ultra-low latency wireless earbuds featuring ANC, 30-hour playback with fast charge case.', 2499.00, 4999.00, 50, 42, 'BESTSELLER', 'ACTIVE', 4.80, 312),
-            (2, 'TC-SMW-04', 1, 1, 'SmartFit OLED Fitness & SpO2 Smartwatch', 'Sleek aluminum smartwatch with 1.43-inch Always-On AMOLED Display, continuous Heart Rate & SpO2 tracker.', 3999.00, 6999.00, 43, 15, 'FEATURED', 'ACTIVE', 4.90, 184),
-            (3, 'BT-SLK-09', 2, 2, 'Handcrafted Pure Mulberry Silk Banarasi Saree', 'Woven by master artisans in Varanasi, this pure silk saree features gold zari brocade work.', 6800.00, 9500.00, 28, 8, 'FEATURED', 'ACTIVE', 4.90, 96),
-            (4, 'SS-PEP-02', 1, 3, 'Organic Malabar Black Pepper Whole (500g)', 'Directly sourced from organic certified farms in Western Ghats, Kerala.', 650.00, 850.00, 24, 60, 'BESTSELLER', 'ACTIVE', 5.00, 540)");
 
-        $pdo->exec("INSERT INTO product_images (product_id, image_url, is_primary) VALUES
-            (1, 'https://images.unsplash.com/photo-1590658268037-6bf12165a8df?auto=format&fit=crop&w=600&q=80', 1),
-            (2, 'https://images.unsplash.com/photo-1579586337278-3befd40fd17a?auto=format&fit=crop&w=600&q=80', 1),
-            (3, 'https://images.unsplash.com/photo-1610030469983-98e550d6193c?auto=format&fit=crop&w=600&q=80', 1),
-            (4, 'https://images.unsplash.com/photo-1599940824399-b87987ceb72a?auto=format&fit=crop&w=600&q=80', 1)");
-
-        $pdo->exec("INSERT INTO orders (id, order_number, user_id, customer_name, email, phone, address, payment_method, payment_status, subtotal, discount, total_amount, status) VALUES
-            (1, 'ORD-99012', 4, 'Rishiraj Sharma', 'customer@vyaparsetu.com', '+91 98765 43210', 'Flat 402, G.V. Acharya Campus Road, Shelu, Maharashtra', 'UPI / Razorpay', 'Paid', 2499.00, 250.00, 2249.00, 'Shipped'),
-            (2, 'ORD-99013', 4, 'Ananya Sen', 'ananya@gmail.com', '+91 91234 56789', 'Suite 12, Tech Park Avenue, Pune, Maharashtra', 'Cash on Delivery', 'Pending', 1300.00, 0.00, 1300.00, 'Delivered')");
-            
-        $pdo->exec("INSERT INTO order_items (id, order_id, product_id, vendor_id, product_title, price, quantity, status) VALUES
-            (1, 1, 1, 1, 'SonicPods Pro Active Noise Cancelling Earbuds', 2499.00, 1, 'Shipped'),
-            (2, 2, 4, 1, 'Organic Malabar Black Pepper Whole (500g)', 650.00, 2, 'Delivered')");
 
         $pdo->exec("INSERT INTO activity_logs (user_id, action_description, ip_address) VALUES
-            (1, 'System initialized with SQLite database & seed data.', '127.0.0.1')");
+            (NULL, 'System initialized with SQLite database & seed data.', '127.0.0.1')");
     }
 }
 

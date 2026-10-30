@@ -3,12 +3,12 @@
 @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
 
 :root {
-  --primary: #F97316;
+  --primary: #FF9933; /* Saffron */
   --primary-hover: #EA580C;
-  --primary-light: #FFF7ED;
-  --secondary: #0F172A;
-  --secondary-hover: #1E293B;
-  --accent: #F59E0B;
+  --primary-light: #FFF8F2;
+  --secondary: #0A1172; /* Ashoka Chakra Navy Blue */
+  --secondary-hover: #1a237e;
+  --accent: #138808; /* Indian flag Green */
   --bg-main: #F8FAFC;
   --card-bg: #FFFFFF;
   --text-dark: #0F172A;
@@ -72,6 +72,8 @@ main {
   background: #ffffff;
   border-bottom: 1px solid var(--border-color);
   box-shadow: var(--shadow-sm);
+  border-top: 4px solid;
+  border-image: linear-gradient(to right, #FF9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%) 1;
 }
 .navbar-brand-logo {
   font-weight: 700;
@@ -140,7 +142,7 @@ main {
   background: #fff;
   border: 1px solid var(--border-color);
   border-radius: var(--radius-md);
-  overflow: hidden;
+  overflow: hidden !important;
   transition: transform 0.2s ease, box-shadow 0.2s ease;
   height: 100%;
   display: flex;
@@ -151,33 +153,95 @@ main {
   box-shadow: var(--shadow-lg);
 }
 .product-card-img-wrapper {
-  position: relative;
-  width: 100%;
-  padding-top: 75%; /* 4:3 Aspect Ratio */
-  overflow: hidden;
-  background-color: #f1f5f9;
+  position: relative !important;
+  width: 100% !important;
+  height: 240px !important;
+  max-height: 240px !important;
+  min-height: 240px !important;
+  overflow: hidden !important;
+  background-color: #f8fafc !important;
+  border-bottom: 1px solid var(--border-color);
 }
 .product-card-img {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  object-fit: cover;
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  padding: 8px !important;
   transition: transform 0.3s ease;
 }
 .product-card:hover .product-card-img {
   transform: scale(1.05);
 }
+
+/* Product Main Image Frame & Fit Utilities */
+.max-h-450px { max-height: 450px !important; }
+.max-h-350px { max-height: 350px !important; }
+.max-h-250px { max-height: 250px !important; }
+.style-object-fit-contain { object-fit: contain !important; }
+
+.product-main-img-frame {
+  width: 100%;
+  height: 420px;
+  max-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+  border-radius: var(--radius-md);
+  overflow: hidden;
+  border: 1px solid var(--border-color);
+  padding: 12px;
+}
+
+.product-main-img-frame img,
+.product-main-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain !important;
+}
+
+.product-upload-preview-frame {
+  width: 100%;
+  max-width: 320px;
+  height: 220px;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md);
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 10px;
+  margin-top: 8px;
+  position: relative;
+}
+
+.product-upload-preview-frame img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain !important;
+  border-radius: 6px;
+}
 .badge-spotlight {
-  position: absolute;
-  top: 10px;
-  left: 10px;
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  z-index: 10 !important;
   font-size: 0.75rem;
-  font-weight: 600;
+  font-weight: 700;
   padding: 4px 10px;
   border-radius: 20px;
   text-transform: uppercase;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 /* Dashboard Layout */
@@ -250,7 +314,8 @@ main {
   background: #0f172a;
   color: #ffffff;
   padding: 3.5rem 0 1.5rem 0;
-  border-top: 1px solid #334155;
+  border-top: 4px solid;
+  border-image: linear-gradient(to right, #FF9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%) 1;
 }
 .footer-vyaparsetu p, 
 .footer-vyaparsetu span, 

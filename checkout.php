@@ -24,7 +24,7 @@ $cartItems = $cartStmt->fetchAll();
 
 if (empty($cartItems)) {
     setFlash('warning', 'Your shopping cart is empty.');
-    header("Location: customer/cart.php");
+    header("Location: " . APP_URL . "/customer/cart.php");
     exit;
 }
 
@@ -32,8 +32,53 @@ $subtotal = 0;
 foreach ($cartItems as $item) {
     $subtotal += ($item['price'] * $item['quantity']);
 }
+
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
+
+// Handle Coupon Application & Removal
+$discountAmount = 0.00;
+$couponDiscountRate = 0.00;
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    if (isset($_POST['apply_coupon'])) {
+        $enteredCode = strtoupper(trim($_POST['coupon_code'] ?? ''));
+        if ($enteredCode === 'FREEDOM80') {
+            $_SESSION['applied_coupon'] = 'FREEDOM80';
+            $_SESSION['coupon_discount_rate'] = 0.15; // 15% discount
+            setFlash('success', 'Promo code FREEDOM80 applied! 15% discount unlocked.');
+        } else if ($enteredCode === 'VYAPAR10') {
+            $_SESSION['applied_coupon'] = 'VYAPAR10';
+            $_SESSION['coupon_discount_rate'] = 0.10; // 10% discount
+            setFlash('success', 'Promo code VYAPAR10 applied! 10% discount unlocked.');
+        } else if ($enteredCode === 'FESTIVE20') {
+            $_SESSION['applied_coupon'] = 'FESTIVE20';
+            $_SESSION['coupon_discount_rate'] = 0.20; // 20% discount
+            setFlash('success', 'Promo code FESTIVE20 applied! 20% discount unlocked.');
+        } else {
+            unset($_SESSION['applied_coupon']);
+            unset($_SESSION['coupon_discount_rate']);
+            setFlash('danger', 'Invalid coupon code. Try "FREEDOM80" for 15% Off!');
+        }
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit;
+    } elseif (isset($_POST['remove_coupon'])) {
+        unset($_SESSION['applied_coupon']);
+        unset($_SESSION['coupon_discount_rate']);
+        setFlash('info', 'Coupon code removed.');
+        header("Location: " . $_SERVER['REQUEST_URI']);
+        exit;
+    }
+}
+
+if (isset($_SESSION['applied_coupon']) && isset($_SESSION['coupon_discount_rate'])) {
+    $couponDiscountRate = $_SESSION['coupon_discount_rate'];
+    $discountAmount = round($subtotal * $couponDiscountRate, 2);
+}
+
 $shipping = $subtotal > 0 ? 99.00 : 0.00;
-$totalAmount = $subtotal + $shipping;
+$totalAmount = max(0, $subtotal - $discountAmount + $shipping);
 
 // Handle Order Placement
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
@@ -54,11 +99,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
         try {
             // Create Order
             $insOrder = $db->prepare("
-                INSERT INTO orders (order_number, user_id, customer_name, email, phone, address, subtotal, shipping_fee, total_amount, payment_method, status) 
-                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Processing')
+                INSERT INTO orders (order_number, user_id, customer_name, email, phone, address, subtotal, discount, shipping_fee, total_amount, payment_method, status) 
+                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, 'Processing')
             ");
-            $insOrder->execute([$orderNum, $user['id'], $customerName, $user['email'], $phone, $fullAddress, $subtotal, $shipping, $totalAmount, $paymentMethod]);
+            $insOrder->execute([$orderNum, $user['id'], $customerName, $user['email'], $phone, $fullAddress, $subtotal, $discountAmount, $shipping, $totalAmount, $paymentMethod]);
             $orderId = $db->lastInsertId();
+
+            // Update customer record in customers table
+            $updCust = $db->prepare("UPDATE customers SET shipping_address = ?, city = ?, pincode = ?, phone = ? WHERE user_id = ?");
+            $updCust->execute([$address, $city, $pincode, $phone, $user['id']]);
 
             // Insert Order Items per Vendor
             $insItem = $db->prepare("
@@ -85,9 +134,13 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
             $clearCart = $db->prepare("DELETE FROM cart_items WHERE cart_id IN (SELECT id FROM cart WHERE user_id = ?)");
             $clearCart->execute([$user['id']]);
 
+            // Clear Applied Coupon
+            unset($_SESSION['applied_coupon']);
+            unset($_SESSION['coupon_discount_rate']);
+
             $db->commit();
             setFlash('success', "Order #$orderNum placed successfully! Thank you for shopping.");
-            header("Location: order-confirmation.php?id=" . $orderId);
+            header("Location: " . APP_URL . "/payment-processing.php?id=" . $orderId);
             exit;
         } catch (Exception $ex) {
             $db->rollBack();
@@ -123,15 +176,15 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
               </div>
               <div class="col-12">
                 <label class="form-label small fw-bold">Street Address</label>
-                <textarea name="address" class="form-control" rows="2" placeholder="House No., Building, Street Name..." required>123 High Street</textarea>
+                <textarea name="address" class="form-control" rows="2" placeholder="House No., Building, Street Name..." required><?= sanitize($user['customer']['shipping_address'] ?? 'Flat 402, G.V. Acharya Campus Road, Shelu') ?></textarea>
               </div>
               <div class="col-md-6">
                 <label class="form-label small fw-bold">City</label>
-                <input type="text" name="city" class="form-control" value="Mumbai" required>
+                <input type="text" name="city" class="form-control" value="<?= sanitize($user['customer']['city'] ?? 'Shelu / Karjat') ?>" required>
               </div>
               <div class="col-md-6">
                 <label class="form-label small fw-bold">Pincode</label>
-                <input type="text" name="pincode" class="form-control" value="400001" required>
+                <input type="text" name="pincode" class="form-control" value="<?= sanitize($user['customer']['pincode'] ?? '410101') ?>" required>
               </div>
             </div>
           </div>
@@ -291,7 +344,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
                 <?php $img = !empty($item['image_url']) ? $item['image_url'] : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=150&q=80'; ?>
                 <div class="d-flex align-items-center justify-content-between py-2 border-bottom">
                   <div class="d-flex align-items-center gap-2">
-                    <img src="<?= sanitize($img) ?>" class="rounded border" width="45" height="45" style="object-fit: cover;">
+                    <img src="<?= sanitize($img) ?>" class="rounded border" width="45" height="45" style="object-fit: contain; background: #f8fafc;">
                     <div>
                       <h6 class="fw-bold mb-0 text-dark small text-truncate" style="max-width: 180px;"><?= sanitize($item['title']) ?></h6>
                       <small class="text-muted">Qty: <?= (int)$item['quantity'] ?> × <?= formatCurrency($item['price']) ?></small>
@@ -306,11 +359,35 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['place_order'])) {
               <span class="text-muted">Subtotal</span>
               <span class="fw-bold"><?= formatCurrency($subtotal) ?></span>
             </div>
+            <?php if ($discountAmount > 0): ?>
+              <div class="d-flex justify-content-between mb-2">
+                <span class="text-muted">Coupon Discount</span>
+                <span class="fw-bold text-success">-<?= formatCurrency($discountAmount) ?></span>
+              </div>
+            <?php endif; ?>
             <div class="d-flex justify-content-between mb-2">
               <span class="text-muted">Shipping Charges</span>
               <span class="fw-bold"><?= formatCurrency($shipping) ?></span>
             </div>
             <hr>
+
+            <!-- Coupon Input Fields -->
+            <div class="mb-4 p-3 bg-light rounded-3 border">
+              <label class="form-label small fw-bold text-dark"><i class="bi bi-ticket-perforated text-primary me-1"></i> Promo Coupon Code</label>
+              <div class="input-group">
+                <input type="text" name="coupon_code" class="form-control form-control-sm text-uppercase fw-bold" placeholder="e.g. FREEDOM80" value="<?= isset($_SESSION['applied_coupon']) ? sanitize($_SESSION['applied_coupon']) : '' ?>">
+                <button type="submit" name="apply_coupon" class="btn btn-sm btn-primary">Apply</button>
+              </div>
+              <?php if (isset($_SESSION['applied_coupon'])): ?>
+                <div class="d-flex align-items-center justify-content-between mt-2 pt-2 border-top">
+                  <span class="text-success small fw-bold">
+                    <i class="bi bi-check-circle-fill me-1"></i> Coupon '<?= sanitize($_SESSION['applied_coupon']) ?>' Applied (<?= (int)($_SESSION['coupon_discount_rate'] * 100) ?>% Off)
+                  </span>
+                  <button type="submit" name="remove_coupon" class="btn btn-link btn-sm text-danger p-0 fw-bold text-decoration-none">Remove</button>
+                </div>
+              <?php endif; ?>
+            </div>
+
             <div class="d-flex justify-content-between mb-4">
               <span class="fs-5 fw-bold">Total Payable</span>
               <span class="fs-4 fw-extrabold text-primary-custom"><?= formatCurrency($totalAmount) ?></span>

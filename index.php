@@ -66,11 +66,44 @@ function getCategoryIconHTML($catName) {
           <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="0" class="active" aria-current="true" aria-label="Slide 1"></button>
           <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="1" aria-label="Slide 2"></button>
           <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="2" aria-label="Slide 3"></button>
+          <button type="button" data-bs-target="#heroCarousel" data-bs-slide-to="3" aria-label="Slide 4"></button>
         </div>
 
         <div class="carousel-inner">
-          <!-- Slide 1: Artisan & SME Brands (Matching Screenshot 1) -->
+          <!-- Slide 1: India Independence Day Sale -->
           <div class="carousel-item active">
+            <div class="p-4 p-lg-5 text-white" style="background: linear-gradient(135deg, #ea580c 0%, #1e1b4b 50%, #16a34a 100%); min-height: 420px; display: flex; align-items: center;">
+              <div class="row align-items-center w-100 g-4">
+                <div class="col-lg-7">
+                  <span class="badge bg-danger text-white font-mono px-3 py-2 rounded-pill fw-bold mb-3 d-inline-block border border-light">
+                    🇮🇳 Independence Day Special
+                  </span>
+                  <h1 class="display-5 fw-extrabold text-white mb-3" style="letter-spacing: -1px; font-weight: 800;">
+                    Freedom Sale: Flat 15% OFF + Free Shipping!
+                  </h1>
+                  <p class="lead text-light mb-4 opacity-90 fs-6">
+                    Celebrate the spirit of freedom with Vyapar Setu. Enjoy exclusive discount offers on handloom textiles, organic spices, local handicrafts, and homegrown electronics. Use Code: <strong class="text-warning">FREEDOM80</strong>
+                  </p>
+                  <div class="d-flex flex-wrap gap-3">
+                    <a href="shop.php" class="btn btn-warning btn-lg fw-bold px-4 shadow">
+                      <i class="bi bi-bag-check-fill me-2"></i> Shop Freedom Deals
+                    </a>
+                    <a href="register.php?role=vendor" class="btn btn-outline-light btn-lg fw-bold px-4">
+                      <i class="bi bi-shop me-2"></i> Sell with Us
+                    </a>
+                  </div>
+                </div>
+                <div class="col-lg-5 text-center">
+                  <div class="p-2 bg-white rounded-4 shadow-lg d-inline-block border border-3 border-white">
+                    <img src="india.png" alt="Independence Day Special Showcase" class="img-fluid rounded-3" style="max-height: 280px; width: 100%; object-fit: cover;">
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Slide 2: Artisan & SME Brands (Matching Screenshot 1) -->
+          <div class="carousel-item">
             <div class="p-4 p-lg-5 text-white" style="background: linear-gradient(135deg, #7c2d12 0%, #ea580c 50%, #c2410c 100%); min-height: 420px; display: flex; align-items: center;">
               <div class="row align-items-center w-100 g-4">
                 <div class="col-lg-7">
@@ -273,7 +306,7 @@ function getCategoryIconHTML($catName) {
                 <?php elseif ($prod['spotlight'] === 'FEATURED'): ?>
                   <span class="badge badge-spotlight bg-primary">Featured</span>
                 <?php endif; ?>
-                <img src="<?= sanitize($img) ?>" alt="<?= sanitize($prod['title']) ?>" class="product-card-img">
+                <img src="<?= sanitize($img) ?>" alt="<?= sanitize($prod['title']) ?>" class="product-card-img" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'">
               </div>
               <div class="p-3 d-flex flex-column flex-grow-1">
                 <div class="d-flex justify-content-between align-items-center mb-1">

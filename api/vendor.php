@@ -61,7 +61,7 @@ if ($method === 'POST') {
         $stmt = $db->prepare("UPDATE orders SET status = :status WHERE id = :id");
         $stmt->execute([':status' => $newStatus, ':id' => $orderId]);
 
-        $log = $db->prepare("INSERT INTO audit_logs (action_description) VALUES (:act)");
+        $log = $db->prepare("INSERT INTO activity_logs (action_description) VALUES (:act)");
         $log->execute([':act' => "Order #$orderId shipment status updated to '$newStatus' by vendor."]);
 
         echo json_encode(['status' => 'success', 'message' => 'Order status updated successfully']);
@@ -87,7 +87,7 @@ if ($method === 'POST') {
             ':cat' => $category
         ]);
 
-        $log = $db->prepare("INSERT INTO audit_logs (action_description) VALUES (:act)");
+        $log = $db->prepare("INSERT INTO activity_logs (action_description) VALUES (:act)");
         $log->execute([':act' => "New SME vendor application submitted: '$storeName' (GSTIN: $gstin)."]);
 
         echo json_encode(['status' => 'success', 'message' => 'Vendor onboarding application submitted for admin verification.']);

@@ -42,27 +42,6 @@ if ($catCheck == 0) {
     echo "Seeded 8 Core Categories!\n";
 }
 
-// Ensure Default Demo Accounts Exist (Admin, Vendor, Customer)
-$validHash = password_hash('password123', PASSWORD_DEFAULT);
-
-$demoUsers = [
-    ['System Administrator', 'admin@vyaparsetu.com', '+91 99000 11223', 'admin'],
-    ['Rahul Verma (TechCraft)', 'vendor@vyaparsetu.com', '+91 98765 11111', 'vendor'],
-    ['Rishiraj Sharma', 'customer@vyaparsetu.com', '+91 98765 43210', 'customer']
-];
-
-$checkUserStmt = $db->prepare("SELECT id FROM users WHERE email = ?");
-$insDemoUser = $db->prepare("INSERT INTO users (name, email, phone, password_hash, role, avatar, status, email_verified) VALUES (?, ?, ?, ?, ?, 'assets/images/default-avatar.png', 'ACTIVE', 1)");
-
-foreach ($demoUsers as $du) {
-    $checkUserStmt->execute([$du[1]]);
-    if (!$checkUserStmt->fetch()) {
-        $insDemoUser->execute([$du[0], $du[1], $du[2], $validHash, $du[3]]);
-    } else {
-        $db->prepare("UPDATE users SET password_hash = ? WHERE email = ?")->execute([$validHash, $du[1]]);
-    }
-}
-
 try {
     $db->exec("SET FOREIGN_KEY_CHECKS = 1;");
 } catch (Exception $e) {}
@@ -349,7 +328,7 @@ $prodStmt = $db->prepare("
 
 $imgStmt = $db->prepare("INSERT INTO product_images (product_id, image_url, is_primary) VALUES (?, ?, 1)");
 
-$totalTargetProducts = 620;
+$totalTargetProducts = 0;
 $insertedCount = 0;
 
 for ($i = 1; $i <= $totalTargetProducts; $i++) {

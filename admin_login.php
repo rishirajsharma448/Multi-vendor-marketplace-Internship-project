@@ -48,7 +48,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
         <label style="font-size: 0.82rem; font-weight: 700; color: var(--navy-800); display: block; margin-bottom: 0.35rem;">Admin Email</label>
         <div class="search-input-group" style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0.4rem 0.85rem;">
           <i class="fa-solid fa-user-shield" style="color: #94A3B8;"></i>
-          <input type="email" id="admin-email" required value="admin@vyaparsetu.in" placeholder="admin@vyaparsetu.in" style="width: 100%; border: none; outline: none; background: none; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
+          <input type="email" id="admin-email" required placeholder="admin@domain.com" style="width: 100%; border: none; outline: none; background: none; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
         </div>
       </div>
 
@@ -56,7 +56,7 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
         <label style="font-size: 0.82rem; font-weight: 700; color: var(--navy-800); display: block; margin-bottom: 0.35rem;">Security Password</label>
         <div class="search-input-group" style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0.4rem 0.85rem;">
           <i class="fa-solid fa-key" style="color: #94A3B8;"></i>
-          <input type="password" id="admin-password" required value="admin123" placeholder="••••••••" style="width: 100%; border: none; outline: none; background: none; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
+          <input type="password" id="admin-password" required placeholder="••••••••" style="width: 100%; border: none; outline: none; background: none; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
         </div>
       </div>
 
@@ -64,10 +64,6 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'admin') {
         Authenticate Admin <i class="fa-solid fa-shield-check"></i>
       </button>
     </form>
-
-    <div style="margin-top: 1.5rem; padding: 0.85rem; background: #F1F5F9; border: 1px solid var(--border-light); border-radius: var(--radius-md); font-size: 0.78rem; color: var(--navy-800);">
-      <strong>Demo Credentials:</strong> Email: <code>admin@vyaparsetu.in</code> | Password: <code>admin123</code>
-    </div>
 
     <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem;">
       <a href="index.php" style="color: var(--text-muted); text-decoration: underline;"><i class="fa-solid fa-arrow-left"></i> Back to Storefront</a>

@@ -119,7 +119,7 @@ $categories = $db->query("SELECT * FROM categories ORDER BY name ASC")->fetchAll
                     <?php elseif ($prod['spotlight'] === 'FEATURED'): ?>
                       <span class="badge badge-spotlight bg-primary">Featured</span>
                     <?php endif; ?>
-                    <img src="<?= sanitize($img) ?>" alt="<?= sanitize($prod['title']) ?>" class="product-card-img">
+                    <img src="<?= sanitize($img) ?>" alt="<?= sanitize($prod['title']) ?>" class="product-card-img" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'">
                   </div>
                   <div class="p-3 d-flex flex-column flex-grow-1">
                     <div class="d-flex justify-content-between align-items-center mb-1">

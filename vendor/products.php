@@ -80,7 +80,7 @@ $products = $stmt->fetchAll();
               <?php foreach ($products as $prod): ?>
                 <tr>
                   <td>
-                    <img src="<?= (strpos($prod['primary_image'] ?? '', 'http') === 0) ? sanitize($prod['primary_image']) : APP_URL . '/' . sanitize($prod['primary_image'] ?? 'assets/images/default-product.png') ?>" alt="Product" class="rounded border" width="48" height="48" style="object-fit: cover;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=100&q=80'">
+                    <img src="<?= (strpos($prod['primary_image'] ?? '', 'http') === 0) ? sanitize($prod['primary_image']) : APP_URL . '/' . sanitize($prod['primary_image'] ?? 'assets/images/default-product.png') ?>" alt="Product" class="rounded border" width="48" height="48" style="object-fit: contain; background: #f8fafc;" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=100&q=80'">
                   </td>
                   <td>
                     <code class="small d-block mb-1"><?= sanitize($prod['sku']) ?></code>

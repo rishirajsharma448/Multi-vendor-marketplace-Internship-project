@@ -12,7 +12,7 @@ if (!empty($slug)) {
     $cat->execute([$slug]);
     $category = $cat->fetch();
     if ($category) {
-        header("Location: shop.php?category=" . $category['id']);
+        header("Location: " . APP_URL . "/shop.php?category=" . $category['id']);
         exit;
     }
 }

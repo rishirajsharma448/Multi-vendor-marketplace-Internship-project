@@ -14,13 +14,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $password = $_POST['password'] ?? '';
     
     if (empty($email) || empty($password)) {
-        $error = "Please provide both email address and password.";
-    } elseif (!validateEmail($email)) {
-        $error = "Please enter a valid email address.";
+        $error = "Please provide both username/email address and password.";
     } else {
         $db = getDBConnection();
-        $stmt = $db->prepare("SELECT * FROM users WHERE email = ?");
-        $stmt->execute([$email]);
+        $stmt = $db->prepare("SELECT * FROM users WHERE LOWER(email) = LOWER(?) OR phone = ?");
+        $stmt->execute([$email, $email]);
         $user = $stmt->fetch();
 
         if ($user && (password_verify($password, $user['password_hash']) || $password === $user['password_hash'])) {
@@ -61,23 +59,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
           <?php endif; ?>
 
-          <form action="login.php" method="POST" class="needs-validation" novalidate>
+          <form action="login.php" method="POST" class="needs-validation" autocomplete="off" novalidate>
             <div class="mb-3">
               <label for="email" class="form-label fw-500">Email Address</label>
               <div class="input-group">
                 <span class="input-group-text bg-white"><i class="bi bi-envelope text-muted"></i></span>
-                <input type="email" name="email" id="email" class="form-control" placeholder="name@example.com" value="<?= sanitize($_POST['email'] ?? '') ?>" required>
+                <input type="email" name="email" id="email" class="form-control" placeholder="name@example.com" value="<?= sanitize($_POST['email'] ?? '') ?>" autocomplete="off" required>
               </div>
             </div>
 
             <div class="mb-3">
               <div class="d-flex justify-content-between align-items-center mb-1">
                 <label for="password" class="form-label fw-500 mb-0">Password</label>
-                <a href="forgot-password.php" class="small text-primary text-decoration-none">Forgot password?</a>
+                <a href="forgot_password.php" class="small text-primary text-decoration-none">Forgot password?</a>
               </div>
               <div class="input-group">
                 <span class="input-group-text bg-white"><i class="bi bi-lock text-muted"></i></span>
-                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" required>
+                <input type="password" name="password" id="password" class="form-control" placeholder="••••••••" autocomplete="new-password" required>
               </div>
             </div>
 

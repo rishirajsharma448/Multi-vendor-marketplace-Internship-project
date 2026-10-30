@@ -9,6 +9,10 @@ function isLoggedIn() {
 }
 
 function getCurrentUser() {
+    static $currentUser = null;
+    if ($currentUser !== null) {
+        return $currentUser;
+    }
     if (!isLoggedIn()) {
         return null;
     }
@@ -18,17 +22,45 @@ function getCurrentUser() {
     $stmt->execute([$_SESSION['user_id']]);
     $user = $stmt->fetch();
     
+    if (!$user) {
+        logoutUser();
+        $currentUser = null;
+        return null;
+    }
+    
     if ($user && $user['role'] === 'vendor') {
         $vStmt = $db->prepare("SELECT * FROM vendors WHERE user_id = ?");
         $vStmt->execute([$user['id']]);
         $user['vendor'] = $vStmt->fetch();
+    } elseif ($user && $user['role'] === 'customer') {
+        $cStmt = $db->prepare("SELECT * FROM customers WHERE user_id = ?");
+        $cStmt->execute([$user['id']]);
+        $user['customer'] = $cStmt->fetch();
+        if (!$user['customer']) {
+            // Auto create customer record if missing
+            $cCode = 'CUST-' . rand(10000, 99999);
+            $ins = $db->prepare("INSERT INTO customers (user_id, customer_code, full_name, email, phone) VALUES (?, ?, ?, ?, ?)");
+            $ins->execute([$user['id'], $cCode, $user['name'], $user['email'], $user['phone'] ?? '']);
+            $user['customer'] = [
+                'user_id' => $user['id'],
+                'customer_code' => $cCode,
+                'full_name' => $user['name'],
+                'email' => $user['email'],
+                'phone' => $user['phone'] ?? '',
+                'shipping_address' => '',
+                'city' => '',
+                'state' => '',
+                'pincode' => ''
+            ];
+        }
     }
     
+    $currentUser = $user;
     return $user;
 }
 
 function requireAuth() {
-    if (!isLoggedIn()) {
+    if (!isLoggedIn() || getCurrentUser() === null) {
         setFlash('warning', 'Please login to access this page.');
         header('Location: ' . APP_URL . '/login.php');
         exit;
@@ -76,9 +108,14 @@ function loginUser($user) {
 function logoutUser() {
     if (isLoggedIn()) {
         $db = getDBConnection();
+        $uCheck = $db->prepare("SELECT id FROM users WHERE id = ?");
+        $uCheck->execute([$_SESSION['user_id']]);
+        $hasUser = $uCheck->fetch();
+        
         $stmt = $db->prepare("INSERT INTO activity_logs (user_id, action_description, ip_address) VALUES (?, ?, ?)");
         $ip = $_SERVER['REMOTE_ADDR'] ?? '127.0.0.1';
-        $stmt->execute([$_SESSION['user_id'], 'User logged out.', $ip]);
+        $logUserId = $hasUser ? $_SESSION['user_id'] : null;
+        $stmt->execute([$logUserId, 'User logged out (session cleared).', $ip]);
     }
     
     $_SESSION = [];

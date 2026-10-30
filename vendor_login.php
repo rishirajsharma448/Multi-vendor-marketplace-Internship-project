@@ -46,15 +46,18 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'vendor') {
         <label style="font-size: 0.82rem; font-weight: 700; color: var(--navy-800); display: block; margin-bottom: 0.35rem;">Vendor Gmail / Business Email</label>
         <div class="search-input-group" style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0.4rem 0.85rem;">
           <i class="fa-solid fa-envelope" style="color: #94A3B8;"></i>
-          <input type="email" id="vendor-email" required value="contact@techcraft.in" placeholder="vendor@store.com" style="width: 100%; border: none; outline: none; background: none; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
+          <input type="email" id="vendor-email" required placeholder="vendor@store.com" style="width: 100%; border: none; outline: none; background: none; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
         </div>
       </div>
 
       <div style="margin-bottom: 1.5rem;">
-        <label style="font-size: 0.82rem; font-weight: 700; color: var(--navy-800); display: block; margin-bottom: 0.35rem;">Password</label>
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 0.35rem;">
+          <label style="font-size: 0.82rem; font-weight: 700; color: var(--navy-800); margin: 0;">Password</label>
+          <a href="forgot_password.php?role=vendor" style="font-size: 0.8rem; color: var(--primary-600); text-decoration: none; font-weight: 600;"><i class="fa-solid fa-key"></i> Forgot Password / OTP Login?</a>
+        </div>
         <div class="search-input-group" style="background: #F8FAFC; border: 1px solid var(--border-light); border-radius: var(--radius-md); padding: 0.4rem 0.85rem;">
           <i class="fa-solid fa-lock" style="color: #94A3B8;"></i>
-          <input type="password" id="vendor-password" required value="vendor123" placeholder="••••••••" style="width: 100%; border: none; outline: none; background: none; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
+          <input type="password" id="vendor-password" required placeholder="••••••••" style="width: 100%; border: none; outline: none; background: none; padding: 0.3rem 0.5rem; font-size: 0.9rem;">
         </div>
       </div>
 
@@ -62,13 +65,6 @@ if (isset($_SESSION['role']) && $_SESSION['role'] === 'vendor') {
         Login to Store Console <i class="fa-solid fa-arrow-right"></i>
       </button>
     </form>
-
-    <div style="margin-top: 1.5rem; padding: 0.85rem; background: #FFF7ED; border: 1px solid #FFEDD5; border-radius: var(--radius-md); font-size: 0.78rem; color: var(--primary-700);">
-      <strong>Demo Accounts:</strong><br>
-      • TechCraft: <code>contact@techcraft.in</code><br>
-      • Bharat Textiles: <code>sales@bharattextiles.in</code><br>
-      • Password: <code>vendor123</code>
-    </div>
 
     <div style="margin-top: 1.5rem; text-align: center; font-size: 0.85rem;">
       <a href="index.php" style="color: var(--text-muted); text-decoration: underline;"><i class="fa-solid fa-arrow-left"></i> Back to Customer Storefront</a>

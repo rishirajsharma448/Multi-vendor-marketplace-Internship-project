@@ -19,7 +19,7 @@ $stmt->execute([$productId]);
 $product = $stmt->fetch();
 
 if (!$product) {
-    header('Location: shop.php');
+    header('Location: ' . APP_URL . '/shop.php');
     exit;
 }
 
@@ -41,7 +41,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     $currentUser = getCurrentUser();
     if (!$currentUser) {
         setFlash('warning', 'Please login to leave a review.');
-        header("Location: login.php");
+        header("Location: " . APP_URL . "/login.php");
         exit;
     }
     
@@ -51,8 +51,19 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
     if ($rating >= 1 && $rating <= 5 && !empty($comment)) {
         $ins = $db->prepare("INSERT INTO reviews (product_id, user_id, customer_name, rating, comment) VALUES (?, ?, ?, ?, ?)");
         $ins->execute([$productId, $currentUser['id'], $currentUser['name'], $rating, $comment]);
-        setFlash('success', 'Thank you! Your review has been published.');
-        header("Location: product.php?id=" . $productId);
+
+        // Automatically update product rating and count in database
+        $calcStmt = $db->prepare("SELECT AVG(rating) as avg_rating, COUNT(*) as cnt FROM reviews WHERE product_id = ?");
+        $calcStmt->execute([$productId]);
+        $stats = $calcStmt->fetch();
+        $avgRating = round((float)($stats['avg_rating'] ?? 5.0), 2);
+        $cntReviews = (int)($stats['cnt'] ?? 0);
+
+        $upProd = $db->prepare("UPDATE products SET rating = ?, rating_count = ? WHERE id = ?");
+        $upProd->execute([$avgRating, $cntReviews, $productId]);
+
+        setFlash('success', 'Thank you! Your verified review has been published and rating updated.');
+        header("Location: " . APP_URL . "/product.php?id=" . $productId);
         exit;
     }
 }
@@ -78,12 +89,16 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['submit_review'])) {
       <div class="col-lg-6">
         <div class="card card-custom p-3 border-0 shadow-sm text-center">
           <?php $primaryImg = !empty($images) ? $images[0]['image_url'] : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=80'; ?>
-          <img src="<?= sanitize($primaryImg) ?>" id="mainProductImg" class="img-fluid rounded-3 max-h-450px style-object-fit-contain" alt="<?= sanitize($product['title']) ?>">
+          <div class="product-main-img-frame">
+            <img src="<?= sanitize($primaryImg) ?>" id="mainProductImg" class="product-main-img" alt="<?= sanitize($product['title']) ?>" onerror="this.src='https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=700&q=80'">
+          </div>
           
           <?php if (count($images) > 1): ?>
-            <div class="d-flex gap-2 mt-3 justify-content-center">
+            <div class="d-flex gap-2 mt-3 justify-content-center flex-wrap">
               <?php foreach ($images as $img): ?>
-                <img src="<?= sanitize($img['image_url']) ?>" class="img-thumbnail cursor-pointer" width="70" height="70" onclick="document.getElementById('mainProductImg').src=this.src">
+                <div class="rounded border p-1" style="width: 70px; height: 70px; background: #f8fafc; display: flex; align-items: center; justify-content: center; cursor: pointer;" onclick="document.getElementById('mainProductImg').src=this.querySelector('img').src">
+                  <img src="<?= sanitize($img['image_url']) ?>" style="max-width: 100%; max-height: 100%; object-fit: contain;">
+                </div>
               <?php endforeach; ?>
             </div>
           <?php endif; ?>

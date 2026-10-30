@@ -2,10 +2,10 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=Outfit:wght@400;500;600;700;800&display=swap');
 
 :root {
-  /* Brand Palette */
-  --primary-50: #FFF7ED;
-  --primary-100: #FFEDD5;
-  --primary-500: #F97316; /* Saffron Orange */
+  /* Brand Palette (Indian Tricolor Saffron) */
+  --primary-50: #FFF8F2;
+  --primary-100: #FFE3D1;
+  --primary-500: #FF9933; /* Tricolor Saffron */
   --primary-600: #EA580C;
   --primary-700: #C2410C;
   
@@ -15,9 +15,9 @@
   --navy-600: #475569;
   
   --accent-gold: #F59E0B;
-  --accent-emerald: #10B981;
+  --accent-emerald: #138808; /* Tricolor Green */
   --accent-rose: #F43F5E;
-  --accent-indigo: #6366F1;
+  --accent-indigo: #0A1172; /* Ashoka Chakra Navy Blue */
   
   --bg-main: #F8FAFC;
   --bg-card: #FFFFFF;
@@ -112,6 +112,8 @@ button {
   padding: 0.5rem 0;
   font-size: 0.85rem;
   border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-top: 4px solid;
+  border-image: linear-gradient(to right, #FF9933 33.3%, #ffffff 33.3%, #ffffff 66.6%, #138808 66.6%) 1;
   position: sticky;
   top: 0;
   z-index: 1000;
@@ -715,36 +717,106 @@ button {
   border-color: #CBD5E1;
 }
 
-.product-thumb {
-  position: relative;
+.product-thumb,
+.product-card-img-wrapper {
+  position: relative !important;
+  width: 100% !important;
+  height: 240px !important;
+  max-height: 240px !important;
+  min-height: 240px !important;
+  background: #F8FAFC !important;
+  overflow: hidden !important;
+  border-bottom: 1px solid var(--border-light, #e2e8f0);
+}
+
+.product-thumb img,
+.product-card-img {
+  position: absolute !important;
+  top: 0 !important;
+  left: 0 !important;
+  width: 100% !important;
+  height: 100% !important;
+  max-width: 100% !important;
+  max-height: 100% !important;
+  object-fit: contain !important;
+  padding: 8px !important;
+  transition: transform 0.4s ease;
+}
+
+.product-card:hover .product-thumb img,
+.product-card:hover .product-card-img {
+  transform: scale(1.05);
+}
+
+/* Product Photo Limits & Frame Utilities */
+.max-h-450px { max-height: 450px !important; }
+.max-h-350px { max-height: 350px !important; }
+.max-h-250px { max-height: 250px !important; }
+.style-object-fit-contain { object-fit: contain !important; }
+
+.product-main-img-frame {
   width: 100%;
-  height: 200px;
-  background: #F1F5F9;
+  height: 420px;
+  max-height: 450px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f8fafc;
+  border-radius: var(--radius-lg, 18px);
   overflow: hidden;
+  border: 1px solid var(--border-light, #e2e8f0);
+  padding: 12px;
 }
 
-.product-thumb img {
+.product-main-img-frame img,
+.product-main-img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain !important;
+}
+
+.product-upload-preview-frame {
   width: 100%;
-  height: 100%;
-  object-fit: cover;
-  transition: transform 0.5s ease;
+  max-width: 320px;
+  height: 220px;
+  border: 2px dashed #cbd5e1;
+  border-radius: var(--radius-md, 12px);
+  background-color: #f8fafc;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  padding: 10px;
+  margin-top: 8px;
+  position: relative;
 }
 
-.product-card:hover .product-thumb img {
-  transform: scale(1.06);
+.product-upload-preview-frame img {
+  max-width: 100%;
+  max-height: 100%;
+  width: auto;
+  height: auto;
+  object-fit: contain !important;
+  border-radius: 6px;
 }
 
 .badge-tag-wrap {
-  position: absolute;
-  top: 0.75rem;
-  left: 0.75rem;
+  position: absolute !important;
+  top: 0.75rem !important;
+  left: 0.75rem !important;
   display: flex;
   flex-direction: column;
   gap: 0.35rem;
-  z-index: 2;
+  z-index: 10 !important;
 }
 
 .badge-spotlight {
+  position: absolute !important;
+  top: 10px !important;
+  left: 10px !important;
+  z-index: 10 !important;
   background: var(--primary-500);
   color: #FFF;
   font-size: 0.68rem;
@@ -753,7 +825,7 @@ button {
   border-radius: var(--radius-full);
   text-transform: uppercase;
   letter-spacing: 0.04em;
-  box-shadow: 0 2px 6px rgba(249, 115, 22, 0.4);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
 
 .badge-vendor {

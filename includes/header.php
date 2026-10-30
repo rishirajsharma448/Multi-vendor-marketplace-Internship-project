@@ -26,8 +26,10 @@ $pageTitle = $pageTitle ?? APP_NAME . ' - ' . APP_SLOGAN;
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- AOS Animations -->
     <link href="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.css" rel="stylesheet">
-    <!-- Custom Theme Stylesheet -->
+    <!-- Custom Theme Stylesheets -->
+    <link rel="stylesheet" href="<?= APP_URL ?>/styles.css">
     <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/style.css">
+    <link rel="stylesheet" href="<?= APP_URL ?>/assets/css/chatbot.css">
     <script>
       window.APP_URL = "<?= APP_URL ?>";
     </script>

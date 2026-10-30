@@ -4,9 +4,9 @@ require_once __DIR__ . '/includes/auth.php';
 
 if (!isLoggedIn()) {
     setFlash('info', 'Please sign in to view your saved wishlist.');
-    header("Location: login.php");
+    header("Location: " . APP_URL . "/login.php");
     exit;
 }
 
-header("Location: customer/wishlist.php");
+header("Location: " . APP_URL . "/customer/wishlist.php");
 exit;

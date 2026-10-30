@@ -103,24 +103,9 @@ foreach ($rawOrders as $ro) {
 $chartLabels = array_keys($monthlyBuckets);
 $chartValues = array_values($monthlyBuckets);
 
-// Representational Data Fallback: Populate realistic demo trend data if database sales are sparse/new
-if ($periodGross < 5000 || max($chartValues ?: [0]) == 0) {
-    if ($period === '1m') {
-        $chartLabels = ['Week 1', 'Week 2', 'Week 3', 'Week 4'];
-        $chartValues = [18500, 24000, 31500, 42000];
-    } elseif ($period === '3m') {
-        $chartLabels = ['May 2026', 'Jun 2026', 'Jul 2026'];
-        $chartValues = [54000, 72000, 89500];
-    } elseif ($period === '1y') {
-        $chartLabels = ['Aug 25', 'Sep 25', 'Oct 25', 'Nov 25', 'Dec 25', 'Jan 26', 'Feb 26', 'Mar 26', 'Apr 26', 'May 26', 'Jun 26', 'Jul 26'];
-        $chartValues = [28000, 32000, 45000, 58000, 74000, 68000, 82000, 91000, 105000, 118000, 134000, 148900];
-    } else { // 6m or default
-        $chartLabels = ['Feb 2026', 'Mar 2026', 'Apr 2026', 'May 2026', 'Jun 2026', 'Jul 2026'];
-        $chartValues = [38000, 45000, 58000, 72000, 89500, 115000];
-    }
-
-    $periodGross = array_sum($chartValues);
-    $periodOrders = count($chartValues) * 5;
+if (empty($chartLabels)) {
+    $chartLabels = ['No sales yet'];
+    $chartValues = [0];
 }
 
 $periodNet = $periodGross * 0.90; // 90% net payout after 10% platform fee
@@ -334,7 +319,7 @@ $recentOrders = $ordersStmt->fetchAll();
           </div>
           <?php if ($topRevenueProduct && $topRevenueProduct['total_revenue_generated'] > 0): ?>
             <div class="d-flex align-items-center gap-3">
-              <img src="<?= (strpos($topRevenueProduct['image_url'] ?? '', 'http') === 0) ? sanitize($topRevenueProduct['image_url']) : APP_URL . '/' . sanitize($topRevenueProduct['image_url'] ?? 'assets/images/default-product.png') ?>" alt="Product" class="rounded border" width="60" height="60" style="object-fit: cover;">
+              <img src="<?= (strpos($topRevenueProduct['image_url'] ?? '', 'http') === 0) ? sanitize($topRevenueProduct['image_url']) : APP_URL . '/' . sanitize($topRevenueProduct['image_url'] ?? 'assets/images/default-product.png') ?>" alt="Product" class="rounded border" width="60" height="60" style="object-fit: contain; background: #f8fafc;">
               <div class="flex-grow-1">
                 <h6 class="fw-bold mb-1 text-dark text-truncate" style="max-width: 250px;"><?= sanitize($topRevenueProduct['title']) ?></h6>
                 <div class="small text-muted">
@@ -360,7 +345,7 @@ $recentOrders = $ordersStmt->fetchAll();
           </div>
           <?php if ($topBestsellerProduct && $topBestsellerProduct['total_units_sold'] > 0): ?>
             <div class="d-flex align-items-center gap-3">
-              <img src="<?= (strpos($topBestsellerProduct['image_url'] ?? '', 'http') === 0) ? sanitize($topBestsellerProduct['image_url']) : APP_URL . '/' . sanitize($topBestsellerProduct['image_url'] ?? 'assets/images/default-product.png') ?>" alt="Product" class="rounded border" width="60" height="60" style="object-fit: cover;">
+              <img src="<?= (strpos($topBestsellerProduct['image_url'] ?? '', 'http') === 0) ? sanitize($topBestsellerProduct['image_url']) : APP_URL . '/' . sanitize($topBestsellerProduct['image_url'] ?? 'assets/images/default-product.png') ?>" alt="Product" class="rounded border" width="60" height="60" style="object-fit: contain; background: #f8fafc;">
               <div class="flex-grow-1">
                 <h6 class="fw-bold mb-1 text-dark text-truncate" style="max-width: 250px;"><?= sanitize($topBestsellerProduct['title']) ?></h6>
                 <div class="small text-muted">
@@ -410,7 +395,7 @@ $recentOrders = $ordersStmt->fetchAll();
                 <tr>
                   <td>
                     <div class="d-flex align-items-center gap-2">
-                      <img src="<?= (strpos($prod['image_url'] ?? '', 'http') === 0) ? sanitize($prod['image_url']) : APP_URL . '/' . sanitize($prod['image_url'] ?? 'assets/images/default-product.png') ?>" class="rounded border" width="40" height="40" style="object-fit: cover;">
+                      <img src="<?= (strpos($prod['image_url'] ?? '', 'http') === 0) ? sanitize($prod['image_url']) : APP_URL . '/' . sanitize($prod['image_url'] ?? 'assets/images/default-product.png') ?>" class="rounded border" width="40" height="40" style="object-fit: contain; background: #f8fafc;">
                       <div>
                         <span class="fw-bold text-dark d-block text-truncate" style="max-width: 220px;"><?= sanitize($prod['title']) ?></span>
                         <small class="text-muted">⭐ <?= number_format($prod['rating'] ?? 5.0, 1) ?></small>

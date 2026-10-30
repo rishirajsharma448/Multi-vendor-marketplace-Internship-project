@@ -56,6 +56,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $vendorCode = 'VND-' . rand(10000, 99999);
                     $vStmt = $db->prepare("INSERT INTO vendors (user_id, vendor_code, store_name, owner_name, email, phone, gstin, category, status) VALUES (?, ?, ?, ?, ?, ?, ?, ?, 'APPROVED')");
                     $vStmt->execute([$userId, $vendorCode, $store_name, $name, $email, $phone, $gstin, $category ?: 'General']);
+                } else {
+                    $customerCode = 'CUST-' . rand(10000, 99999);
+                    $cStmt = $db->prepare("INSERT INTO customers (user_id, customer_code, full_name, email, phone) VALUES (?, ?, ?, ?, ?)");
+                    $cStmt->execute([$userId, $customerCode, $name, $email, $phone]);
                 }
 
                 $db->commit();
@@ -102,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             </div>
           <?php endif; ?>
 
-          <form action="register.php?role=<?= $roleParam ?>" method="POST">
+          <form action="register.php?role=<?= $roleParam ?>" method="POST" autocomplete="off">
             <input type="hidden" name="role" value="<?= $roleParam === 'vendor' ? 'vendor' : 'customer' ?>">
 
             <div class="row g-3">
@@ -118,7 +122,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
               <div class="col-12">
                 <label class="form-label fw-500">Email Address *</label>
-                <input type="email" name="email" class="form-control" placeholder="name@example.com" value="<?= sanitize($_POST['email'] ?? '') ?>" required>
+                <input type="email" name="email" class="form-control" placeholder="name@example.com" value="<?= sanitize($_POST['email'] ?? '') ?>" autocomplete="off" required>
               </div>
 
               <?php if ($roleParam === 'vendor'): ?>
@@ -147,12 +151,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
               <div class="col-md-6">
                 <label class="form-label fw-500">Password *</label>
-                <input type="password" name="password" class="form-control" placeholder="••••••••" required>
+                <input type="password" name="password" class="form-control" placeholder="••••••••" autocomplete="new-password" required>
               </div>
 
               <div class="col-md-6">
                 <label class="form-label fw-500">Confirm Password *</label>
-                <input type="password" name="confirm_password" class="form-control" placeholder="••••••••" required>
+                <input type="password" name="confirm_password" class="form-control" placeholder="••••••••" autocomplete="new-password" required>
               </div>
 
               <div class="col-12">

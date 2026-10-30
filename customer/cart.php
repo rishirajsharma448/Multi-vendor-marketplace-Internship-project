@@ -77,7 +77,7 @@ $total = $subtotal + $shipping;
                     <tr>
                       <td>
                         <div class="d-flex align-items-center gap-3">
-                          <img src="<?= sanitize($img) ?>" class="rounded border" width="60" height="60" style="object-fit: cover;">
+                          <img src="<?= sanitize($img) ?>" class="rounded border" width="60" height="60" style="object-fit: contain; background: #f8fafc;">
                           <div>
                             <h6 class="fw-bold mb-0 text-dark"><?= sanitize($item['title']) ?></h6>
                             <small class="text-success"><i class="bi bi-shop me-1"></i><?= sanitize($item['store_name'] ?? 'Vendor') ?></small>

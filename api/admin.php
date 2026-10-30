@@ -20,8 +20,8 @@ if ($method === 'GET') {
         $oStmt = $db->query("SELECT * FROM orders ORDER BY id DESC");
         $orders = $oStmt->fetchAll();
 
-        // Audit Logs
-        $aStmt = $db->query("SELECT * FROM audit_logs ORDER BY id DESC LIMIT 15");
+        // Activity Logs
+        $aStmt = $db->query("SELECT * FROM activity_logs ORDER BY id DESC LIMIT 15");
         $logs = $aStmt->fetchAll();
 
         // GMV & Commission Calculation
@@ -56,7 +56,7 @@ if ($method === 'POST') {
         $stmt = $db->prepare("UPDATE vendors SET status = 'APPROVED' WHERE id = :id");
         $stmt->execute([':id' => $id]);
 
-        $log = $db->prepare("INSERT INTO audit_logs (action_description) VALUES (:act)");
+        $log = $db->prepare("INSERT INTO activity_logs (action_description) VALUES (:act)");
         $log->execute([':act' => "Admin approved SME vendor store ID #$id."]);
 
         echo json_encode(['status' => 'success', 'message' => 'Vendor approved successfully']);
@@ -68,7 +68,7 @@ if ($method === 'POST') {
         $stmt = $db->prepare("UPDATE products SET status = CASE WHEN status = 'ACTIVE' THEN 'HIDDEN' ELSE 'ACTIVE' END WHERE id = :id");
         $stmt->execute([':id' => $id]);
 
-        $log = $db->prepare("INSERT INTO audit_logs (action_description) VALUES (:act)");
+        $log = $db->prepare("INSERT INTO activity_logs (action_description) VALUES (:act)");
         $log->execute([':act' => "Admin toggled visibility status for product ID #$id."]);
 
         echo json_encode(['status' => 'success', 'message' => 'Product status updated']);

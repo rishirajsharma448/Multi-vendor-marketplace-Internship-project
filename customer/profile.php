@@ -33,6 +33,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
             $stmt = $db->prepare("UPDATE users SET name = ?, phone = ?, avatar = ? WHERE id = ?");
             $stmt->execute([$name, $phone, $avatarPath, $user['id']]);
+
+            $cUp = $db->prepare("UPDATE customers SET full_name = ?, phone = ? WHERE user_id = ?");
+            $cUp->execute([$name, $phone, $user['id']]);
+
             setFlash('success', 'Profile information updated successfully!');
             header("Location: profile.php");
             exit;

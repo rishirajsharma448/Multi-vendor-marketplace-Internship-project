@@ -809,7 +809,7 @@ function openProductDetail(id) {
   content.innerHTML = `
     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 2rem;">
       <div>
-        <img src="${p.image}" alt="${p.title}" style="width: 100%; height: 320px; object-fit: cover; border-radius: var(--radius-lg);">
+        <img src="${p.image}" alt="${p.title}" style="width: 100%; height: 320px; object-fit: contain; background: #f8fafc; padding: 10px; border-radius: var(--radius-lg); border: 1px solid var(--border-light);">
       </div>
 
       <div>

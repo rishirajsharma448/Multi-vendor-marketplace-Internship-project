@@ -42,7 +42,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle photo file upload from device
     if (isset($_FILES['product_image_file']) && $_FILES['product_image_file']['error'] === UPLOAD_ERR_OK) {
         try {
-            $uploadedPath = handleFileUpload('product_image_file', 'uploads/products/');
+            $uploadedPath = handleFileUpload('product_image_file', 'uploads/product_photos/');
             if ($uploadedPath) {
                 $newImageUrl = $uploadedPath;
             }
@@ -144,21 +144,24 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
           <!-- Photo File Upload from Device -->
           <div class="col-md-6">
             <label class="form-label fw-500 text-primary"><i class="bi bi-upload me-1"></i> Replace Photo from PC / Mobile</label>
-            <input type="file" name="product_image_file" accept="image/*" class="form-control">
+            <input type="file" name="product_image_file" id="product_image_file" accept="image/*" class="form-control">
             <small class="text-muted">Upload a new image file to replace current photo.</small>
           </div>
 
           <div class="col-md-6">
             <label class="form-label fw-500">OR Update Web Image URL</label>
-            <input type="url" name="image_url" class="form-control" value="<?= sanitize($product['primary_image'] ?? '') ?>">
+            <input type="url" name="image_url" id="product_image_url" class="form-control" value="<?= sanitize($product['primary_image'] ?? '') ?>">
           </div>
 
-          <?php if (!empty($product['primary_image'])): ?>
-            <div class="col-12">
-              <label class="form-label fw-500 d-block">Current Product Image</label>
-              <img src="<?= (strpos($product['primary_image'], 'http') === 0) ? sanitize($product['primary_image']) : APP_URL . '/' . sanitize($product['primary_image']) ?>" class="rounded border" width="100" height="100" style="object-fit: cover;">
+          <!-- Product Photo Frame Preview (Bounded Fit) -->
+          <div class="col-12 mt-2 mb-2">
+            <label class="form-label fw-500 text-dark"><i class="bi bi-aspect-ratio me-1"></i> Product Photo Frame Preview (Bounded Fit)</label>
+            <div class="product-upload-preview-frame">
+              <?php $curImg = !empty($product['primary_image']) ? ((strpos($product['primary_image'], 'http') === 0) ? $product['primary_image'] : APP_URL . '/' . $product['primary_image']) : 'https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80'; ?>
+              <img id="uploadImagePreview" src="<?= sanitize($curImg) ?>" alt="Preview">
             </div>
-          <?php endif; ?>
+            <small class="text-muted d-block mt-1"><i class="bi bi-shield-check text-success me-1"></i> Full picture will be kept completely inside this product frame limit without overflowing or stretching.</small>
+          </div>
 
           <div class="col-12">
             <label class="form-label fw-500">Description</label>
@@ -175,5 +178,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('product_image_file');
+  const urlInput = document.getElementById('product_image_url');
+  const previewImg = document.getElementById('uploadImagePreview');
+
+  if (fileInput && previewImg) {
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+
+  if (urlInput && previewImg) {
+    urlInput.addEventListener('input', function() {
+      if (this.value.trim() !== '') {
+        previewImg.src = this.value.trim();
+      }
+    });
+  }
+});
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

@@ -23,7 +23,7 @@ DROP TABLE IF EXISTS `vendors`;
 DROP TABLE IF EXISTS `users`;
 SET FOREIGN_KEY_CHECKS = 1;
 
--- 1. Users Table
+-- 1. Users Table (Core Auth & Credentials)
 CREATE TABLE `users` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `name` VARCHAR(100) NOT NULL,
@@ -38,7 +38,24 @@ CREATE TABLE `users` (
   `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
 
--- 2. Vendors Table
+-- 2. Customers Table (Dedicated Customer Personal & Shipping Details)
+CREATE TABLE `customers` (
+  `id` INT AUTO_INCREMENT PRIMARY KEY,
+  `user_id` INT NOT NULL UNIQUE,
+  `customer_code` VARCHAR(20) NOT NULL UNIQUE,
+  `full_name` VARCHAR(100) NOT NULL,
+  `email` VARCHAR(100) NOT NULL,
+  `phone` VARCHAR(20) DEFAULT NULL,
+  `shipping_address` TEXT DEFAULT NULL,
+  `city` VARCHAR(60) DEFAULT NULL,
+  `state` VARCHAR(60) DEFAULT NULL,
+  `pincode` VARCHAR(10) DEFAULT NULL,
+  `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+  `updated_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+  FOREIGN KEY (`user_id`) REFERENCES `users`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+-- 3. Vendors Table (Dedicated Vendor Business & Storefront Details)
 CREATE TABLE `vendors` (
   `id` INT AUTO_INCREMENT PRIMARY KEY,
   `user_id` INT NOT NULL UNIQUE,

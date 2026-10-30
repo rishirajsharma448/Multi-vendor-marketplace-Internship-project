@@ -49,6 +49,40 @@
     </div>
   </div>
 </footer>
+<!-- Chatbot UI -->
+<div id="chatbot-container">
+    <div id="chatbot-window">
+        <div id="chatbot-header">
+            <div class="d-flex align-items-center gap-2">
+                <div class="chatbot-avatar-badge"><i class="bi bi-robot"></i></div>
+                <div>
+                    <h5 class="mb-0">Setu AI Assistant</h5>
+                    <small class="text-white-50" style="font-size: 11px;">Powered by Live Marketplace Catalog</small>
+                </div>
+            </div>
+            <button id="chatbot-close"><i class="bi bi-x-lg"></i></button>
+        </div>
+        <div id="chatbot-chips" class="chatbot-chips">
+            <span class="chatbot-chip" data-msg="Compare iPhone 17 vs iPhone 18 Pro">⚖️ Compare iPhones</span>
+            <span class="chatbot-chip" data-msg="What do customer reviews say about Black T-shirt?">⭐ T-Shirt Reviews</span>
+            <span class="chatbot-chip" data-msg="Show me photos and specs of Alpha Tech Active Noise-Cancelling Bluetooth Headphones Pro">📸 Headphones Photos</span>
+            <span class="chatbot-chip" data-msg="Compare PlayStation 5 vs Samsung S26 Ultra">🎮 PS5 vs S26</span>
+        </div>
+        <div id="chatbot-messages">
+            <div class="chatbot-message bot">
+                👋 <strong>Namaste! I am Setu AI</strong>, your personal shopping assistant.<br><br>
+                Ask me for <strong>product comparisons</strong>, <strong>verified customer reviews</strong>, <strong>specifications</strong>, or <strong>photos</strong> of any item in our store!
+            </div>
+        </div>
+        <div id="chatbot-input-area">
+            <input type="text" id="chatbot-input" placeholder="Ask about products, orders...">
+            <button id="chatbot-send"><i class="bi bi-send-fill"></i></button>
+        </div>
+    </div>
+    <button id="chatbot-toggle">
+        <i class="bi bi-chat-dots"></i>
+    </button>
+</div>
 
 <!-- Bootstrap 5 Bundle JS -->
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/js/bootstrap.bundle.min.js"></script>
@@ -58,6 +92,7 @@
 <script src="https://cdn.jsdelivr.net/npm/aos@2.3.4/dist/aos.js"></script>
 <!-- Custom JavaScript -->
 <script src="<?= APP_URL ?>/assets/js/app.js"></script>
+<script src="<?= APP_URL ?>/assets/js/chatbot.js"></script>
 <script>
   if (typeof AOS !== 'undefined') {
     AOS.init({ duration: 600, once: true });

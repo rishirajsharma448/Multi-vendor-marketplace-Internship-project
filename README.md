@@ -1,6 +1,6 @@
-# Vyapar Setu – Multi Vendor Marketplace
+# Vyapar Setu – Multi-Vendor Marketplace (Internship Project)
 
-Vyapar Setu is a production-quality Multi-Vendor Marketplace web application built with **PHP, MySQL (with seamless PDO SQLite fallback), HTML5, CSS3, Bootstrap 5, JavaScript, AJAX, and Chart.js**.
+Vyapar Setu is an enterprise-grade Multi-Vendor Marketplace web application built with **PHP, MySQL (with seamless PDO SQLite fallback), HTML5, CSS3, Bootstrap 5, JavaScript, AJAX, and Chart.js** developed as an Internship Project.
 
 ---
 
@@ -149,17 +149,8 @@ d:\Multi_Vendor_Marketplace\
 └── README.md
 ```
 
----
 
-## 🔑 Demo Account Credentials
 
-| Role | Email | Password |
-|---|---|---|
-| **Admin** | `admin@vyaparsetu.com` | `password123` |
-| **Vendor** | `vendor@vyaparsetu.com` | `password123` |
-| **Customer** | `customer@vyaparsetu.com` | `password123` |
-
----
 
 ## ⚙️ How to Run via XAMPP
 

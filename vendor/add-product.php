@@ -34,7 +34,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     // Handle File Upload from PC or Mobile Device
     if (isset($_FILES['product_image_file']) && $_FILES['product_image_file']['error'] === UPLOAD_ERR_OK) {
         try {
-            $uploadedPath = handleFileUpload('product_image_file', 'uploads/products/');
+            $uploadedPath = handleFileUpload('product_image_file', 'uploads/product_photos/');
             if ($uploadedPath) {
                 $finalImageUrl = $uploadedPath;
             }
@@ -146,14 +146,23 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             <label class="form-label fw-500 text-primary">
               <i class="bi bi-upload me-1"></i> Upload Photo from Device (PC / Mobile)
             </label>
-            <input type="file" name="product_image_file" accept="image/*" class="form-control">
+            <input type="file" name="product_image_file" id="product_image_file" accept="image/*" class="form-control">
             <small class="text-muted d-block mt-1">Select an image file (JPG, PNG, WEBP, GIF up to 5MB).</small>
           </div>
 
           <div class="col-md-6">
             <label class="form-label fw-500">OR Enter Web Image URL</label>
-            <input type="url" name="image_url" class="form-control" placeholder="https://images.unsplash.com/...">
+            <input type="url" name="image_url" id="product_image_url" class="form-control" placeholder="https://images.unsplash.com/...">
             <small class="text-muted d-block mt-1">Used if no file is selected above.</small>
+          </div>
+
+          <!-- Product Photo Frame Preview (Bounded Fit) -->
+          <div class="col-12 mt-2 mb-2">
+            <label class="form-label fw-500 text-dark"><i class="bi bi-aspect-ratio me-1"></i> Photo Product Frame Preview (Bounded Fit)</label>
+            <div class="product-upload-preview-frame">
+              <img id="uploadImagePreview" src="https://images.unsplash.com/photo-1523275335684-37898b6baf30?auto=format&fit=crop&w=600&q=80" alt="Preview">
+            </div>
+            <small class="text-muted d-block mt-1"><i class="bi bi-shield-check text-success me-1"></i> Full picture will be kept completely inside this product frame limit without overflowing or stretching.</small>
           </div>
 
           <div class="col-md-6">
@@ -180,5 +189,33 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     </div>
   </div>
 </div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+  const fileInput = document.getElementById('product_image_file');
+  const urlInput = document.getElementById('product_image_url');
+  const previewImg = document.getElementById('uploadImagePreview');
+
+  if (fileInput && previewImg) {
+    fileInput.addEventListener('change', function() {
+      if (this.files && this.files[0]) {
+        const reader = new FileReader();
+        reader.onload = function(e) {
+          previewImg.src = e.target.result;
+        };
+        reader.readAsDataURL(this.files[0]);
+      }
+    });
+  }
+
+  if (urlInput && previewImg) {
+    urlInput.addEventListener('input', function() {
+      if (this.value.trim() !== '') {
+        previewImg.src = this.value.trim();
+      }
+    });
+  }
+});
+</script>
 
 <?php include __DIR__ . '/../includes/footer.php'; ?>

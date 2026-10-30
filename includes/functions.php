@@ -103,7 +103,7 @@ function getStatusBadgeClass($status) {
     }
 }
 
-function handleFileUpload($fileInputName, $targetDir = 'uploads/general/') {
+function handleFileUpload($fileInputName, $targetDir = 'uploads/product_photos/') {
     if (!isset($_FILES[$fileInputName]) || $_FILES[$fileInputName]['error'] !== UPLOAD_ERR_OK) {
         return null;
     }
